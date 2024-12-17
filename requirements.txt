@@ -10,3 +10,4 @@ pytz
 six
 SQLAlchemy
 Werkzeug
+requests
