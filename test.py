@@ -1,5 +1,8 @@
 import requests
 
-requests.post(f"http://127.0.0.1:5000/user/{input('Enter email: ')}", {"passkey": input('Enter passkey: ')})
+url = "http://127.0.0.1:5000/user/"
 
-print(requests.get(f"http://127.0.0.1:5000/user/{input('Enter email: ')}"))
+#requests.post(f"{url}create", json={"email": "test@gmail.com", "passkey": "test_passkey"})
+input()
+print(requests.get(f"{url}email/test@gmail.com").content.decode('utf-8'))
+input()

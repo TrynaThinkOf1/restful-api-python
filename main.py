@@ -79,18 +79,19 @@ class UserResource(Resource):
         if result:
             abort(409, message="User with that user_id already exists")
 
-        user = User(email=args["email"], passkey=args["passkey"])
+        user = User(user_id=getNextUserID(), email=args["email"], passkey=args["passkey"])
         db.session.add(user)
         db.session.commit()
         return user, 201
 
     def delete(self, user_id):
+        args = user_post_args.parse_args()
         result = User.query.filter_by(user_id=user_id).first()
         if not result:
             abort(404, message="User not found")
 
         else:
-            if result.passkey != result["passkey"]:
+            if result.passkey != args["passkey"]:
                 abort(404, message="Passkey doesn't match")
 
         db.session.delete(result)
@@ -99,6 +100,7 @@ class UserResource(Resource):
         return {"message": f"User: {user_id} deleted"}, 204
 
 class UserByEmail(Resource):
+    @marshal_with(field_flavors)
     def get(self, email):
         result = User.query.filter_by(email=email).first()
         if not result:
@@ -106,9 +108,10 @@ class UserByEmail(Resource):
 
         return result
 
-api.add_resource(UserResource, "/user/<int:user_id>") # this adds a route to the API to create a user
+api.add_resource(UserResource, "/user/create") # this adds a route to the API to create a user
 api.add_resource(UserByEmail, "/user/email/<string:email>") # this adds a route to the API to fetch user data with email !& user_id
 
 if __name__ == '__main__':
-    # db.create_all()  # Uncomment only if re-initializing the database
-    app.run(debug=True) # ¡¡¡ DON'T RUN WITH DEBUG IN PRODUCTION ENVIRONMENT !!! #
+    #with app.app_context():
+        #db.create_all()  # Uncomment only if re-initializing the database
+    app.run(host="0.0.0.0", debug=True) # ¡¡¡ DON'T RUN WITH DEBUG IN PRODUCTION ENVIRONMENT !!! #

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-width: 400px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Management</h1>
+
+    <!-- Create User Form -->
+    <form id="createUserForm">
+        <h2>Create a User</h2>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required placeholder="Enter email">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required placeholder="Enter password">
+        <button type="submit">Create User</button>
+    </form>
+
+    <!-- Search by user_id -->
+    <form id="searchByIdForm">
+        <h2>Search by User ID</h2>
+        <label for="userId">User ID:</label>
+        <input type="number" id="userId" name="userId" required placeholder="Enter user ID">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Search by Email -->
+    <form id="searchByEmailForm">
+        <h2>Search by Email</h2>
+        <label for="searchEmail">Email:</label>
+        <input type="email" id="searchEmail" name="email" required placeholder="Enter email">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Response Display -->
+    <div id="response" class="response" style="display: none;"></div>
+
+    <script>
+        const apiBaseUrl = "http://127.0.0.1:5000";
+
+        const createUserForm = document.getElementById("createUserForm");
+        const searchByIdForm = document.getElementById("searchByIdForm");
+        const searchByEmailForm = document.getElementById("searchByEmailForm");
+        const responseDiv = document.getElementById("response");
+
+        // Display response
+        function showResponse(message) {
+            responseDiv.style.display = "block";
+            responseDiv.textContent = message;
+        }
+
+        // Handle Create User Form Submission
+        createUserForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const res = await fetch(`${apiBaseUrl}/user`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email, passkey: password }),
+                });
+
+                const data = await res.json();
+
+                if (res.status === 201) {
+                    showResponse(`User created successfully! User ID: ${data.user_id}`);
+                } else {
+                    showResponse(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                showResponse("Error: Could not connect to the server.");
+            }
+        });
+
+        // Handle Search by User ID Form Submission
+        searchByIdForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const userId = document.getElementById("userId").value;
+
+            try {
+                const res = await fetch(`${apiBaseUrl}/user/${userId}`);
+                const data = await res.json();
+
+                if (res.status === 200) {
+                    showResponse(`Email for User ID ${userId}: ${data.email}`);
+                } else {
+                    showResponse(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                showResponse("Error: Could not connect to the server.");
+            }
+        });
+
+        // Handle Search by Email Form Submission
+        searchByEmailForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("searchEmail").value;
+
+            try {
+                const res = await fetch(`${apiBaseUrl}/user/email/${email}`);
+                const data = await res.json();
+
+                if (res.status === 200) {
+                    showResponse(`User ID for email ${email}: ${data.user_id}`);
+                } else {
+                    showResponse(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                showResponse("Error: Could not connect to the server.");
+            }
+        });
+    </script>
+</body>
+</html>
